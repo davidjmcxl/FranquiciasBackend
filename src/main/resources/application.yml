@@ -1,0 +1,10 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb+srv://prueba:Fe8X5V9BePPDJIlG@cluster0.klrb50m.mongodb.net/franquiciaDB
+  jackson:
+    serialization:
+      indent_output: true
+
+server:
+  port: 8080
