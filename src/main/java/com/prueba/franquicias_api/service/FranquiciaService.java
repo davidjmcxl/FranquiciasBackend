@@ -7,12 +7,15 @@ import com.prueba.franquicias_api.model.Franquicia;
 import com.prueba.franquicias_api.model.Producto;
 import com.prueba.franquicias_api.model.Sucursal;
 import com.prueba.franquicias_api.repository.FranquiciaRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class FranquiciaService {
@@ -187,4 +190,78 @@ public class FranquiciaService {
                 .filter(Objects::nonNull)
                 .toList();
     }
+/**
+ * Actualiza el nombre de una franquicia existente.
+ *
+ * @param id ID de la franquicia a actualizar.
+ * @param nuevoNombre Nuevo nombre que se asignará a la franquicia.
+ * @return ResponseEntity con la franquicia actualizada si existe,
+ *         o un mensaje de error con estado 404 si no se encuentra la franquicia.
+ */
+    public ResponseEntity<?> actualizarNombre(String id, String nuevoNombre) {
+        Optional<Franquicia> optional = franquiciaRepository.findById(id);
+        if (optional.isPresent()) {
+            Franquicia franquicia = optional.get();
+            franquicia.setNombre(nuevoNombre);
+            franquiciaRepository.save(franquicia);
+            return ResponseEntity.ok(franquicia);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Franquicia no encontrada");
+        }
+    }
+    /**
+     * Actualiza el nombre de una sucursal perteneciente a una franquicia específica.
+     *
+     * @param franquiciaId ID de la franquicia a la cual pertenece la sucursal.
+     * @param nombreAntiguo Nombre actual de la sucursal que se desea actualizar.
+     * @param nuevoNombre Nuevo nombre que se asignará a la sucursal.
+     * @return ResponseEntity con la franquicia actualizada si la sucursal fue encontrada,
+     *         o un mensaje de error con estado 404 si no se encuentra la franquicia o la sucursal
+     */
+    public ResponseEntity<?> actualizarNombreSucursal(String franquiciaId, String nombreAntiguo, String nuevoNombre) {
+        Optional<Franquicia> optional = franquiciaRepository.findById(franquiciaId);
+        if (optional.isPresent()) {
+            Franquicia franquicia = optional.get();
+            List<Sucursal> sucursales = franquicia.getSucursales();
+            for (Sucursal sucursal : sucursales) {
+                if (sucursal.getNombre().equalsIgnoreCase(nombreAntiguo)) {
+                    sucursal.setNombre(nuevoNombre);
+                    franquiciaRepository.save(franquicia);
+                    return ResponseEntity.ok(franquicia);
+                }
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sucursal no encontrada");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Franquicia no encontrada");
+    }
+    /**
+     * Actualiza el nombre de un producto dentro de una sucursal específica de una franquicia.
+     *
+     * @param franquiciaId ID de la franquicia donde se encuentra la sucursal.
+     * @param sucursalNombre Nombre de la sucursal que contiene el producto.
+     * @param productoAntiguo Nombre actual del producto que se desea actualizar.
+     * @param nuevoNombre Nuevo nombre que se asignará al producto.
+     * @return ResponseEntity con la franquicia actualizada si el producto fue encontrado y actualizado,
+     *         o un mensaje de error con estado 404 si no se encuentra la franquicia, la sucursal o el producto.
+     */
+    public ResponseEntity<?> actualizarNombreProducto(String franquiciaId, String sucursalNombre, String productoAntiguo, String nuevoNombre) {
+        Optional<Franquicia> optional = franquiciaRepository.findById(franquiciaId);
+        if (optional.isPresent()) {
+            Franquicia franquicia = optional.get();
+            for (Sucursal sucursal : franquicia.getSucursales()) {
+                if (sucursal.getNombre().equalsIgnoreCase(sucursalNombre)) {
+                    for (Producto producto : sucursal.getProductos()) {
+                        if (producto.getNombre().equalsIgnoreCase(productoAntiguo)) {
+                            producto.setNombre(nuevoNombre);
+                            franquiciaRepository.save(franquicia);
+                            return ResponseEntity.ok(franquicia);
+                        }
+                    }
+                }
+            }
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Producto no encontrado");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Franquicia no encontrada");
+    }
+
 }

@@ -17,4 +17,7 @@ public class Sucursal {
     private String nombre;
 
     private List<Producto> productos = new ArrayList<>();
+
+    public <E> Sucursal(String sucursalA, ArrayList<E> es) {
+    }
 }
