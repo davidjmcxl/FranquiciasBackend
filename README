@@ -98,10 +98,10 @@ cd franquicias-api
 
 ```bash
 # Linux/macOS
-export MONGO_URI="mongodb+srv://usuario:clave@cluster.mongodb.net/franquiciaDB"
+export MONGO_URI
 
 # Windows CMD
-set MONGO_URI=mongodb+srv://usuario:clave@cluster.mongodb.net/franquiciaDB
+set MONGO_URI
 ```
 
 ### 4. Compilar y ejecutar
